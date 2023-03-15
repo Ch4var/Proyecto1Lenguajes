@@ -142,16 +142,130 @@ void mostrarEspaciosSitiosEventos() {
     }
 }
 
-void gestionEspaciosSitiosEventos(){
-    printf("Gestion Espacios Sitios de Eventos");
+void gestionEspaciosSitiosEventos() {
+    int opcion;
+    do {
+    printf("\n\n--- Gestion de espacios en sitios de eventos ---\n");
+    printf("1. Mostrar espacios en sitios de eventos.\n");
+    printf("2. Agregar sector a sitio de eventos.\n");
+    printf("3. Resetear espacios para un sitio de eventos.\n");
+    printf("4. Volver al menu principal.\n");
+
+    printf("Seleccione una opcion: ");
+    scanf("%d", &opcion);
+
+    switch (opcion) {
+        case 1:
+            mostrarEspaciosSitiosEventos();
+            break;
+        case 2:
+            agregarSectorSitioEvento();
+            break;
+        case 3:
+            resetEspaciosSitioEvento();
+            break;
+        case 4:
+            break;
+        default:
+            printf("Opcion invalida.\n");
+    }
+} while (opcion != 4);
 }
 
-void gestionEventos(){
-    printf("Gestion Eventos");
+void gestionEventos() {
+    // Verificar si hay sitios de eventos definidos
+    if (numSitiosEventos == 0) {
+        printf("No hay sitios de eventos definidos en el sistema.\n");
+        return;
+    }
+
+    // Mostrar lista de sitios de eventos
+    printf("Sitios de eventos disponibles:\n");
+    for (int i = 0; i < numSitiosEventos; i++) {
+        printf("%d. %s - %s\n", i+1, sitiosEventos[i].nombre, sitiosEventos[i].ubicacion);
+    }
+
+    // Solicitar seleccion de sitio de eventos
+    int opcion;
+    printf("\nSeleccione el sitio de eventos para el evento: ");
+    scanf("%d", &opcion);
+    opcion--;
+
+    if (opcion < 0 || opcion >= numSitiosEventos) {
+        printf("Opcion invalida.\n");
+        return;
+    }
+
+    // Mostrar lista de sectores del sitio de eventos seleccionado
+    printf("\nSectores disponibles en el sitio %s:\n", sitiosEventos[opcion].nombre);
+    for (int i = 0; i < sitiosEventos[opcion].cantidadSectores; i++) {
+        printf("%d. %s - Monto: %.2f\n", i+1, sitiosEventos[opcion].sectores[i].nombre, sitiosEventos[opcion].sectores[i].asientos[0].precio);
+    }
+
+    // Crear evento
+    char nombre[50], productora[50], fecha[11];
+    printf("\nIngrese el nombre del evento: ");
+    scanf("%s", nombre);
+
+    printf("Ingrese el nombre de la productora: ");
+    scanf("%s", productora);
+
+    printf("Ingrese la fecha del evento (dd/mm/yyyy): ");
+    scanf("%s", fecha);
+
+    struct evento evento = {
+        .nombre = strdup(nombre),
+        .productora = strdup(productora),
+        .fecha = strdup(fecha),
+        .sitioEvento = &sitiosEventos[opcion]
+    };
+
+    eventos[numEventos++] = evento;
+
+    printf("\nEvento %s creado correctamente.\n", nombre);
 }
 
-void estadoEventos(){
-    printf("Estado Evento\n")
+void estadoEventos() {
+    printf("Eventos disponibles:\n");
+    for (int i = 0; i < numEventos; i++) {
+        printf("%d. %s\n", i+1, eventos[i].nombre);
+    }
+
+    int opcion;
+    printf("\nSeleccione el evento para el cual desea ver el estado: ");
+    scanf("%d", &opcion);
+    opcion--;
+
+    if (opcion < 0 || opcion >= numEventos) {
+        printf("Opcion invalida.\n");
+        return;
+    }
+
+    struct evento evento = eventos[opcion];
+    printf("\nNombre: %s\n", evento.nombre);
+    printf("Productora: %s\n", evento.productora);
+    printf("Sitio de evento: %s\n", evento.sitioEvento->nombre);
+    printf("Fecha: %s\n", evento.fecha);
+
+    for (int i = 0; i < evento.sitioEvento->cantidadSectores; i++) {
+        struct sector sector = evento.sitioEvento->sectores[i];
+        float montoSector = sector.asientos[0].precio * sector.cantidadAsientos;
+        printf("\nSector: %s\n", sector.nombre);
+        printf("Monto por asiento: %.2f\n", sector.asientos[0].precio);
+        printf("Monto recaudado: %.2f\n", 0.0);
+
+        for (int j = 0; j < sector.cantidadAsientos; j++) {
+            struct asiento asiento = sector.asientos[j];
+            printf("Asiento %s - Estado: %s\n", asiento.nombre, asiento.estado == 0 ? "disponible" : "vendido");
+        }
+
+        for (int j = 0; j < numFacturas; j++) {
+            struct factura factura = facturas[j];
+            if (strcmp(factura.evento.nombre, evento.nombre) == 0 && strcmp(factura.sector, sector.nombre) == 0) {
+                printf("Monto recaudado: %.2f\n", factura.subtotal);
+            }
+        }
+    }
 }
 
 
