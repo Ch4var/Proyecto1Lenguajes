@@ -16,8 +16,7 @@ struct factura {
     struct evento evento;
     char* sector;
     char* fechaCompra;
-    struct cliente* cliente;
-    float costoServicio;
+    int idCliente;
     float subtotal;
     float total;
 };

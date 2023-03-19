@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <libpq-fe.h>
 #include "Boletos.h"
 #include "Eventos.h"
 
-struct cliente clientes[100];
 int numClientes = 0;
 struct factura facturas[MAX_FACTURAS];
 int numFacturas = 0;
@@ -18,21 +18,20 @@ extern int numEventos;
 
 void listaFacturas() {
     int i, j;
-    
+
     if (numFacturas == 0) {
         printf("No hay facturas registradas.\n");
         return;
     }
-    
+
     printf("Facturas:\n");
-    
+
     for (i = 0; i < numFacturas; i++) {
         printf("ID: %d\n", facturas[i].idFactura);
         printf("Evento: %s\n", facturas[i].evento.nombre);
         printf("Sector: %s\n", facturas[i].sector);
         printf("Fecha de compra: %s\n", facturas[i].fechaCompra);
-        printf("Cliente: %s\n", facturas[i].cliente->nombre);
-        printf("Cedula del cliente: %d\n", facturas[i].cliente->idCliente);
+        printf("Cedula del cliente: %d\n", facturas[i].idCliente);
         printf("Subtotal: %.2f\n", facturas[i].subtotal);
         printf("Total: %.2f\n", facturas[i].total);
         printf("=======================================\n");
@@ -50,10 +49,10 @@ void compraBoleto() {
     int sectorIndex, asientoIndex, i;
     //struct factura factura;
     float subtotal, costoServicio, total;
-    
+
     printf("Ingrese el nombre del evento: ");
     scanf("%s", nombreEvento);
-    
+
     // Buscar evento por nombre
     for (i = 0; i < numEventos; i++) {
         if (strcmp(nombreEvento, eventos[i].nombre) == 0) {
@@ -61,51 +60,51 @@ void compraBoleto() {
             break;
         }
     }
-    
+
     if (evento == NULL) {
         printf("El evento no existe.\n");
         return;
     }
-    
+
     // Mostrar sectores y asientos disponibles
     printf("Sectores disponibles:\n");
     for (i = 0; i < evento->sitioEvento->cantidadSectores; i++) {
         printf("%d. %s - Precio: %.2f\n", i + 1, evento->sitioEvento->sectores[i].nombre, evento->sitioEvento->sectores[i].asientos[0].precio);
     }
-    
+
     printf("Ingrese el número de sector: ");
     scanf("%d", &sectorIndex);
     sectorIndex--; // Ajustar índice a 0-based
-    
+
     if (sectorIndex < 0 || sectorIndex >= evento->sitioEvento->cantidadSectores) {
         printf("Sector inválido.\n");
         return;
     }
-    
+
     printf("Asientos disponibles para el sector '%s':\n", evento->sitioEvento->sectores[sectorIndex].nombre);
     for (i = 0; i < evento->sitioEvento->sectores[sectorIndex].cantidadAsientos; i++) {
         if (evento->sitioEvento->sectores[sectorIndex].asientos[i].estado == 0) {
             printf("%d ", i + 1);
         }
     }
-    
+
     printf("\nIngrese el número de asiento: ");
     scanf("%d", &asientoIndex);
     asientoIndex--; // Ajustar índice a 0-based
-    
+
     if (asientoIndex < 0 || asientoIndex >= evento->sitioEvento->sectores[sectorIndex].cantidadAsientos || evento->sitioEvento->sectores[sectorIndex].asientos[asientoIndex].estado == 1) {
         printf("Asiento inválido.\n");
         return;
     }
-    
+
     // Registrar venta de boleto
     evento->sitioEvento->sectores[sectorIndex].asientos[asientoIndex].estado = 1;
     subtotal = evento->sitioEvento->sectores[sectorIndex].asientos[0].precio;
-    
+
     time_t tiempo = time(0);
     struct tm *tlocal = localtime(&tiempo);
     char fechaCompra[128];
-    strftime(fechaCompra, 128, "%d/%m/%Y %H:%M:%S", tlocal);
+    strftime(fechaCompra, 128, "%Y-%m-%d", tlocal);
     int idCliente = 0;
     char nombreCliente[50];
     char TempNombreCliente[50];
@@ -115,18 +114,20 @@ void compraBoleto() {
     scanf("%s", TempNombreCliente);
     strcpy(nombreCliente, TempNombreCliente);
     total = subtotal * 1.05;
-    
+
     struct cliente cliente = {
         .idCliente = idCliente,
         .nombre = strdup(nombreCliente)
     };
-    
+    clientes[numClientes] = cliente;
+    numClientes++;
+
     struct factura factura = {
         .idFactura = numFacturas + 1,
         .evento = *evento,
         .sector = evento->sitioEvento->sectores[sectorIndex].nombre,
         .fechaCompra = strdup(fechaCompra),
-        .cliente = &cliente,
+        .idCliente = idCliente,
         .subtotal = subtotal,
         .total = subtotal * 1.05
     };
@@ -137,8 +138,7 @@ void compraBoleto() {
     printf("Sector: %s\n", factura.sector);
     printf("Fecha de compra: %s\n", factura.fechaCompra);
     printf("Cliente:\n");
-    printf("- Cédula: %d\n", factura.cliente->idCliente);
-    printf("- Nombre: %s\n", factura.cliente->nombre);
+    printf("- Cédula: %d\n", factura.idCliente);
     printf("Subtotal: %.2f\n", factura.subtotal);
     printf("Total: %.2f\n", total);
     facturas[numFacturas] = factura;

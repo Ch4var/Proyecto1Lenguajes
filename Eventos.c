@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <libpq-fe.h>
 #include "Boletos.h"
 #include "Eventos.h"
 
