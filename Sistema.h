@@ -1,6 +1,9 @@
 #ifndef SISTEMA
 #define SISTEMA
 
+/*
+Prototipos de las funciones de Sistema.c
+*/
 void subirDatos();
 void menuPrincipal();
 void menuOperativo();

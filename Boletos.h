@@ -5,12 +5,17 @@
 #define MAX_FACTURAS 100
 #define MAX_CLIENTES 100
 
-
+/*
+Modelo para guardar la informacion de un cliente en el sistema
+*/
 struct cliente {
     int idCliente;
     char* nombre;
 };
 
+/*
+Modelo para guardar la informacion de una factura en el sistema
+*/
 struct factura {
     int idFactura;
     struct evento evento;
@@ -21,8 +26,13 @@ struct factura {
     float total;
 };
 
+/*
+Prototipos de las funciones de Boletos.c
+*/
 void listaFacturas();
 void estadisticas();
 void compraBoleto();
+//void estadisticasA();
+void estadisticasB();
 
 #endif// BOLETOS

@@ -3,12 +3,18 @@
 #define MAX_SITIOS_EVENTOS 100
 #define MAX_EVENTOS 100
 
+/*
+Modelo para guardar la informacion de un asiento en el sistema
+*/
 struct asiento {
     char* nombre;
     int estado;
     float precio;
 };
 
+/*
+Modelo para guardar la informacion de un sector en el sistema
+*/
 struct sector {
     char* nombre;
     int cantidadAsientos;
@@ -16,6 +22,10 @@ struct sector {
     struct asiento* asientos;
 };
 
+
+/*
+Modelo para guardar la informacion de un sitio donde se realizara un evento en el sistema
+*/
 struct sitio_evento {
     char* nombre;
     char* ubicacion;
@@ -24,6 +34,9 @@ struct sitio_evento {
     struct sector* sectores;
 };
 
+/*
+Modelo para guardar la informacion de un evento en el sistema
+*/
 struct evento {
     char* nombre;
     char* productora;
@@ -31,6 +44,9 @@ struct evento {
     struct sitio_evento* sitioEvento;
 };
 
+/*
+Prototipos de las funciones de Eventos.h
+*/
 void leerSitiosEventos();
 void mostrarSitiosEventos();
 void gestionSitiosEventos();
