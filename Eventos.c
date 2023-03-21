@@ -14,6 +14,11 @@ int numEventos = 0;
 extern struct factura facturas[MAX_FACTURAS];
 extern int numFacturas;
 
+/*
+Funcion cuyo objetivo es extraer los datos de los sitios de eventos en el archivo sitios.txt
+Para esto, usa la funcion strtok para separar la informacion al encontrar una ","
+Luego, agrega los datos del sitio al arreglo de eventos
+*/
 void leerSitiosEventos() {
     FILE* archivo = fopen("sitios.txt", "r");
 
@@ -57,6 +62,10 @@ void leerSitiosEventos() {
     fclose(archivo);
 }
 
+/*
+Funcion cuyo objetivo es mostrar la lista de sitios de eventos al usuario.
+Para esto, lo que hace es recorrer el arreglo global de sitios de eventos y desplegar en pantalla cada uno de sus atributos
+*/
 void mostrarSitiosEventos() {
     printf("Lista de sitios de eventos:\n");
     for (int i = 0; i < numSitiosEventos; i++) {
@@ -64,12 +73,21 @@ void mostrarSitiosEventos() {
     }
 }
 
+/*
+Funcion cuyo objetivo es mostrar la lista de sitios de eventos al usuario.
+Para esto, primero llama la funcion para cargar los datos desde el archivo y luego
+lo que hace es llamar a la función que recorre el arreglo global de sitios de eventos y despliega en pantalla cada uno de sus atributos
+*/
 void gestionSitiosEventos() {
     printf("Gestion de sitios de eventos\n\n");
     leerSitiosEventos();
     mostrarSitiosEventos();
 }
 
+/*
+Funcion cuyo objetivo es mostrar la de sectores por cada sitio de evento
+Para esto, se fija en el arreglo de sectores de cada sitio de evento e imprime sus atributos
+*/
 void mostrarEspaciosSitiosEventos() {
     printf("Espacios en sitios de eventos:\n");
     for (int i = 0; i < numSitiosEventos; i++) {
@@ -95,6 +113,12 @@ void mostrarEspaciosSitiosEventos() {
     }
 }
 
+/*
+Funcion cuyo objetivo es agregar un sectore a un sitio de evento.
+Para esto, le pide al usuario el sitio de evento en el que quiere agregar un sector,
+el nombre del sector, la cantidad de espacios del sector, el precio de los asientos por sector y
+la inicial de los asientos del sector
+*/
 void agregarSectorSitioEvento() {
     mostrarEspaciosSitiosEventos();
 
@@ -108,22 +132,23 @@ void agregarSectorSitioEvento() {
         return;
     }
 
-    char nombre[50];
+    char nombre[100];
     int cantidadEspacios;
     float precio;
     char inicial;
 
     printf("\nIngrese el nombre del sector: ");
-    scanf("%s", nombre);
-
+    getchar();
+    fgets(nombre, sizeof(nombre), stdin);
+    nombre[strcspn(nombre, "\n")] = '\0';
     printf("Ingrese la cantidad de espacios: ");
     scanf("%d", &cantidadEspacios);
 
     printf("Ingrese el precio de los asientos: ");
     scanf("%f", &precio);
-
+    getchar();
     printf("Ingrese la inicial (caracter alfabetico) de los asientos: ");
-    scanf(" %c", &inicial);
+    scanf("%c", &inicial);
 
     struct sector sector = {
         .nombre = strdup(nombre),
@@ -151,36 +176,44 @@ void agregarSectorSitioEvento() {
     printf("Sector %s agregado correctamente.\n", nombre);
 }
 
+/*
+Funcion cuyo objetivo es resetear los espacios de un sitio de evento.
+Para esto, le pide al usuario el sector que quiere resetear y cambia el estado de cada asiento a 0 (desocupado)
+*/
 void resetEspaciosSitioEvento() {
     mostrarEspaciosSitiosEventos();
 
     int opcion;
     printf("\nSeleccione el sitio de eventos para el cual desea hacer reset de los espacios: ");
-scanf("%d", &opcion);
-opcion--;
+    scanf("%d", &opcion);
+    opcion--;
 
-if (opcion < 0 || opcion >= numSitiosEventos) {
-    printf("Opcion invalida.\n");
-    return;
-}
-
-struct sitio_evento* sitio = &sitiosEventos[opcion];
-
-if (sitio->cantidadSectores == 0) {
-    printf("No hay sectores definidos para este sitio de eventos.\n");
-    return;
-}
-
-for (int i = 0; i < sitio->cantidadSectores; i++) {
-    struct sector* sector = &sitio->sectores[i];
-    for (int j = 0; j < sector->cantidadAsientos; j++) {
-        sector->asientos[j].estado = 0;
+    if (opcion < 0 || opcion >= numSitiosEventos) {
+        printf("Opcion invalida.\n");
+        return;
     }
+
+    struct sitio_evento* sitio = &sitiosEventos[opcion];
+
+    if (sitio->cantidadSectores == 0) {
+        printf("No hay sectores definidos para este sitio de eventos.\n");
+        return;
+    }
+
+    for (int i = 0; i < sitio->cantidadSectores; i++) {
+        struct sector* sector = &sitio->sectores[i];
+        for (int j = 0; j < sector->cantidadAsientos; j++) {
+            sector->asientos[j].estado = 0;
+        }
+    }
+
+    printf("Espacios reseteados para el sitio de eventos %s.\n", sitio->nombre);
 }
 
-printf("Espacios reseteados para el sitio de eventos %s.\n", sitio->nombre);
-}
-
+/*
+Funcion cuyo objetivo es mostrar las opciones de gestion de los sectores de un sitio de eventos.
+Para esto, muestra en pantalla las opciones y segun la entrada del usuario, llama a la funcion correspondiente
+*/
 void gestionEspaciosSitiosEventos() {
     int opcion;
     do {
@@ -211,6 +244,11 @@ void gestionEspaciosSitiosEventos() {
 } while (opcion != 4);
 }
 
+/*
+Funcion cuyo objetivo es crear un evento en un sitio de evento.
+Para esto, le pide al usuario el sitio de evento, el nombre del evento, la productora y la fecha del evento.
+Luego agrega estos datos al arreglo de eventos
+*/
 void gestionEventos() {
     // Verificar si hay sitios de eventos definidos
     if (numSitiosEventos == 0) {
@@ -243,13 +281,14 @@ void gestionEventos() {
 
     // Crear evento
     char nombre[50], productora[50], fecha[11];
+    getchar();
     printf("\nIngrese el nombre del evento: ");
-    scanf("%s", nombre);
-
+    fgets(nombre, sizeof(nombre), stdin);
+    nombre[strcspn(nombre, "\n")] = '\0';
     printf("Ingrese el nombre de la productora: ");
-    scanf("%s", productora);
-
-    printf("Ingrese la fecha del evento (dd/mm/yyyy): ");
+    fgets(productora, sizeof(productora), stdin);
+    productora[strcspn(productora, "\n")] = '\0';
+    printf("Ingrese la fecha del evento (yyyy-mm-dd): ");
     scanf("%s", fecha);
 
     struct evento evento = {
@@ -264,6 +303,10 @@ void gestionEventos() {
     printf("\nEvento %s creado correctamente.\n", nombre);
 }
 
+/*
+Funcion cuyo objetivo es mostrar el estado de un evento en particular
+Para esto, le pide al usuario el evento y muestra los ingresos y asientos disponibles por sector
+*/
 void estadoEventos() {
     printf("Eventos disponibles:\n");
     for (int i = 0; i < numEventos; i++) {
@@ -289,26 +332,35 @@ void estadoEventos() {
     for (int i = 0; i < evento.sitioEvento->cantidadSectores; i++) {
         struct sector sector = evento.sitioEvento->sectores[i];
         float montoSector = sector.asientos[0].precio * sector.cantidadAsientos;
+        float montoRecaudadoSector = 0;
         printf("\nSector: %s\n", sector.nombre);
         printf("Monto por asiento: %.2f\n", sector.asientos[0].precio);
-        printf("Monto recaudado: %.2f\n", 0.0);
+        for (int j = 0; j < numFacturas; j++) {
+            if (strcmp(facturas[j].evento.nombre, evento.nombre) == 0 && strcmp(facturas[j].sector, sector.nombre) == 0) {
+                montoRecaudadoSector+=facturas[j].total;
+            }
+        }
+        printf("Monto recaudado en este sector: %.2f\n", montoRecaudadoSector);
 
         for (int j = 0; j < sector.cantidadAsientos; j++) {
-            struct asiento asiento = sector.asientos[j];
-            printf("Asiento %s - Estado: %s\n", asiento.nombre, asiento.estado == 0 ? "disponible" : "vendido");
+            printf("Asiento %s - Estado: %s\n", sector.asientos[j].nombre, sector.asientos[j].estado == 0 ? "disponible" : "vendido");
         }
 
         for (int j = 0; j < numFacturas; j++) {
             if (strcmp(facturas[j].evento.nombre, evento.nombre) == 0 && strcmp(facturas[j].sector, sector.nombre) == 0) {
-                printf("Monto recaudado: %.2f\n", facturas[j].subtotal);
+                printf("Monto recaudado en factura: %.2f\n", facturas[j].subtotal);
             }
         }
     }
 }
 
+/*
+Funcion cuyo objetivo es mostrar la informacion de los eventos que tienen una fecha posterior a
+la ingresada. Para esto, pide al usuario una fecha y muestra todos los eventos posteriores a esa fecha
+*/
 void consultaEvento() {
     char fecha[11];
-    printf("Ingrese una fecha en formato dd/mm/yyyy: ");
+    printf("Ingrese una fecha en formato yyyy-mm-dd: ");
     scanf("%s", fecha);
     printf("\nEventos posteriores a la fecha %s:\n", fecha);
     for (int i = 0; i < numEventos; i++) {

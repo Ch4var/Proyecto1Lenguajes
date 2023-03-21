@@ -16,12 +16,11 @@ extern int numFacturas;
 extern struct cliente clientes[MAX_CLIENTES];
 extern int numClientes;
 
-int main(void)
-{
+int main(void){
     PGconn *conn = PQconnectdb("host=localhost port=5432 dbname=P1Lenguajes user=postgres password=admin");
 
     if (PQstatus(conn) == CONNECTION_OK) {
-        printf("Coneccion exitosa a la base");
+        printf("\n");
     }else{
     printf("Connection to database failed: %s", PQerrorMessage(conn));
     PQfinish(conn);
@@ -36,17 +35,21 @@ int main(void)
     return 0;
 }
 
+/*
+Funcion cuyo objetivo es subir los datos del programa hacia la base de datos.
+Esto lo hace recorriendo los arreglos globales de cada tipo e insertandolos en la base de datos en las respectivas tablas
+*/
 void subirDatos(){
     PGconn *conn = PQconnectdb("host=localhost port=5432 dbname=P1Lenguajes user=postgres password=admin");
     PGresult *res;
     if (PQstatus(conn) == CONNECTION_OK) {
-        printf("Coneccion exitosa a la base");
+        printf("\n");
     }else{
         printf("Connection to database failed: %s", PQerrorMessage(conn));
         PQfinish(conn);
         exit(1);
     }
-
+    //Insertar los sitios de eventos
     for (int i = 0; i < numSitiosEventos; i++) {
         int id = i+1;
         char nombre[50];
@@ -62,7 +65,7 @@ void subirDatos(){
         res = PQexec(conn, insert_query);
 
     }
-
+    //Insertar los sectores en los sitios de eventos
     for (int i = 0; i < numSitiosEventos; i++){
         for (int j = 0; j < sitiosEventos[i].cantidadSectores; j++){
             int id = i+1;
@@ -75,7 +78,7 @@ void subirDatos(){
             res = PQexec(conn, insert_query);
         }
     }
-
+    //Insertar los asientos en los sectores de los sitios de eventos
     for (int i = 0; i < numSitiosEventos; i++){
         for (int j = 0; j < sitiosEventos[i].cantidadSectores; j++){
             for(int k = 0; k < sitiosEventos[i].sectores[j].cantidadAsientos; k++){
@@ -92,7 +95,7 @@ void subirDatos(){
             }
         }
     }
-
+    //Insertar los eventos
     for (int i = 0; i < numEventos; i++){
 
         char nombre[50];
@@ -113,6 +116,7 @@ void subirDatos(){
 
         res = PQexec(conn, insert_query);
     }
+    //Insertar los clientes
     for (int i = 0; i < numClientes; i++) {
         char nombre[50];
         strcpy(nombre,clientes[i].nombre);
@@ -123,7 +127,7 @@ void subirDatos(){
         res = PQexec(conn, insert_query);
 
     }
-
+    //Insertar los clientes
     for(int i = 0; i < numFacturas; i++){
         int idFactura = facturas[i].idFactura;
         char nombreEvento[50];
@@ -137,17 +141,21 @@ void subirDatos(){
         float total = facturas[i].total;
 
         char insert_query[400];
-        snprintf(insert_query, 400, "INSERT INTO FACTURAS (idFactura, nombreEvento, sector, fechaCompra, idCliente, subtotal, total) VALUES (%d, '%s', '%s', '%s', %d, %.2f, %.2f)", idCliente, nombreEvento, nombreSector, fechaCompra, idCliente, subtotal, total);
+        snprintf(insert_query, 400, "INSERT INTO FACTURAS (idFactura, nombreEvento, sector, fechaCompra, idCliente, subtotal, total) VALUES (%d, '%s', '%s', '%s', %d, %.2f, %.2f)", idFactura, nombreEvento, nombreSector, fechaCompra, idCliente, subtotal, total);
 
         res = PQexec(conn, insert_query);
     }
 }
 
+/*
+Funcion que borra los datos de la base de datos.
+Su objetivo es evitar problemas al sobreescribir los datos
+*/
 void borrarDatos() {
     PGconn *conn = PQconnectdb("host=localhost port=5432 dbname=P1Lenguajes user=postgres password=admin");
     PGresult *res;
     if (PQstatus(conn) == CONNECTION_OK) {
-        printf("Conexión exitosa a la base");
+        printf("\n");
     } else {
         printf("La conexión a la base de datos falló: %s", PQerrorMessage(conn));
         PQfinish(conn);
@@ -175,11 +183,15 @@ void borrarDatos() {
     PQfinish(conn);
 }
 
+/*
+Funcion cuyo objetivo es obtener los datos de la base de los sitios de evento, sectores y asientos y los inserta en los arreglos globales del programa.
+Esto lo hace seleccionando los asientos por cada sector por cada sitio de evento
+*/
 void obtenerDatos(){
     PGconn *conn = PQconnectdb("host=localhost port=5432 dbname=P1Lenguajes user=postgres password=admin");
     PGresult *res;
     if (PQstatus(conn) == CONNECTION_OK) {
-        printf("Coneccion exitosa a la base");
+        printf("\n");
     }else{
         printf("Connection to database failed: %s", PQerrorMessage(conn));
         PQfinish(conn);
@@ -229,11 +241,15 @@ void obtenerDatos(){
     PQfinish(conn);
 }
 
+/*
+Funcion cuyo objetivo es obtener los datos de la base de los eventos, clientes y facturas y los inserta en los arreglos globales del programa.
+Esto lo hace seleccionando los datos de las respectivas tablas e insertandolos en los arreglos globales
+*/
 void obtenerDatos2(){
     PGconn *conn = PQconnectdb("host=localhost port=5432 dbname=P1Lenguajes user=postgres password=admin");
     PGresult *res;
     if (PQstatus(conn) == CONNECTION_OK) {
-        printf("Coneccion exitosa a la base");
+        printf("\n");
     }else{
         printf("Connection to database failed: %s", PQerrorMessage(conn));
         PQfinish(conn);
@@ -290,6 +306,11 @@ void obtenerDatos2(){
     }
 }
 
+/*
+Funcion cuyo objetivo es desplegar en pantalla las opciones del menu operativo
+Para esto imprime en pantalla las opciones disponibles.
+Luego, pide al usuario un numero y llama a la funcion correspondiente segun el numero
+*/
 void menuOperativo() {
     int opcion;
 
@@ -323,7 +344,8 @@ void menuOperativo() {
                 listaFacturas();
                 break;
             case 6:
-                estadisticas();
+                //estadisticasA();
+                //estadisticasB();
                 break;
             case 7:
                 printf("Volviendo al menu principal...\n");
@@ -335,6 +357,11 @@ void menuOperativo() {
     } while (opcion != 7);
 }
 
+/*
+Funcion cuyo objetivo es desplegar en pantalla las opciones del menu general
+Para esto imprime en pantalla las opciones disponibles.
+Pide al usuario un numero y llama a la funcion correspondiente segun el numero
+*/
 void menuOpcionesGenerales() {
     int opcion;
     do {
@@ -363,6 +390,12 @@ void menuOpcionesGenerales() {
 } while (opcion != 3);
 }
 
+/*
+Funcion cuyo objetivo es desplegar en pantalla las opciones del menu operativo
+Para esto imprime en pantalla las opciones disponibles.
+Luego, pide al usuario un numero y llama a la funcion correspondiente segun el numero.
+Tambien da la opcion de salir del programa
+*/
 void menuPrincipal() {
     int opcion;
     do {

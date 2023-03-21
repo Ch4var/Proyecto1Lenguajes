@@ -22,7 +22,6 @@ struct sector {
     struct asiento* asientos;
 };
 
-
 /*
 Modelo para guardar la informacion de un sitio donde se realizara un evento en el sistema
 */

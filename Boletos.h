@@ -30,9 +30,6 @@ struct factura {
 Prototipos de las funciones de Boletos.c
 */
 void listaFacturas();
-void estadisticas();
 void compraBoleto();
-//void estadisticasA();
-void estadisticasB();
 
 #endif// BOLETOS
